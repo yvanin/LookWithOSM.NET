@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LookWithOSM.NET", "LookWithOSM.NET\LookWithOSM.NET.csproj", "{61DC7E69-0D41-4AF2-AFDA-142665D2078F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LookWithOSM.NET.Tests", "LookWithOSM.NET.Tests\LookWithOSM.NET.Tests.csproj", "{A933D11B-9740-488A-8947-3FD50DE03717}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{61DC7E69-0D41-4AF2-AFDA-142665D2078F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61DC7E69-0D41-4AF2-AFDA-142665D2078F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61DC7E69-0D41-4AF2-AFDA-142665D2078F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61DC7E69-0D41-4AF2-AFDA-142665D2078F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A933D11B-9740-488A-8947-3FD50DE03717}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A933D11B-9740-488A-8947-3FD50DE03717}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A933D11B-9740-488A-8947-3FD50DE03717}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A933D11B-9740-488A-8947-3FD50DE03717}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
