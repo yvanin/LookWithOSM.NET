@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using LookWithOSM.NET.ApiClients;
@@ -54,6 +55,11 @@ namespace LookWithOSM.NET
         /// <returns>list of objects' descriptions</returns>
         public IEnumerable<string> At(GeoPoint position, double bearing)
         {
+            if (position == null)
+            {
+                throw new ArgumentNullException("position");
+            }
+
             var boundingBox = GeoCalc.GetBoundingBox(position, Adjustment.BoundingBoxHeight, Adjustment.BoundingBoxWidth);
             var mapData = ApiClient.GetDataInBoundingBox(ApiUrl, boundingBox);
             var objectsOfImportance = OsmApiDataProcessor.GetObjectsOfImportance(mapData);
@@ -63,18 +69,21 @@ namespace LookWithOSM.NET
         /// <summary>
         /// Filters out only objects in a person's direction of a view
         /// </summary>
-        internal IEnumerable<string> FilterObjectsByPositionAndBearing(OsmObjectsOfImportance objects, GeoPoint position, double bearing)
+        private IEnumerable<string> FilterObjectsByPositionAndBearing(OsmObjectsOfImportance objects, GeoPoint position, double bearing)
         {
+            Debug.Assert(objects != null, "objects == null");
+            Debug.Assert(position != null, "position == null");
+
             var testingPoints = GetPointsAlongBearing(position, bearing);
 
             // filter objects
             var filterSingleNodesTask = Task.Factory.StartNew(() => FilterSingleNodes(objects.SingleNodes, testingPoints));
-            var filterBuildingWaysTask = Task.Factory.StartNew(() =>
+            var filterBuildingsWaysTask = Task.Factory.StartNew(() =>
             {
                 // filter buildings' ways by testing if some point along a person's direction of view is inside the way
                 foreach (var point in testingPoints)
                 {
-                    foreach (var way in objects.BuildingWays)
+                    foreach (var way in objects.BuildingsWays)
                     {
                         if (GeoCalc.IsPointInsidePolygon(point, way.Nodes))
                             return new {TestingPoint = point, Way = way};
@@ -82,10 +91,10 @@ namespace LookWithOSM.NET
                 }
                 return null;
             });
-            Task.WaitAll(filterSingleNodesTask, filterBuildingWaysTask);
+            Task.WaitAll(filterSingleNodesTask, filterBuildingsWaysTask);
 
             // print out objects' descriptions
-            var building = filterBuildingWaysTask.Result;
+            var building = filterBuildingsWaysTask.Result;
             if (building != null)
             {
                 yield return BuildingWayDescription(building.Way);
@@ -103,6 +112,8 @@ namespace LookWithOSM.NET
         /// </summary>
         private IEnumerable<GeoPoint> GetPointsAlongBearing(GeoPoint position, double bearing)
         {
+            Debug.Assert(position != null, "position == null");
+
             var pointsCount =
                 (int)
                 Math.Sqrt(Adjustment.BoundingBoxHeight*Adjustment.BoundingBoxHeight +
@@ -123,6 +134,9 @@ namespace LookWithOSM.NET
         /// </summary>
         private ICollection<OsmNode> FilterSingleNodes(ICollection<OsmNode> singleNodes, IEnumerable<GeoPoint> testingPoints)
         {
+            Debug.Assert(singleNodes != null, "singleNodes == null");
+            Debug.Assert(testingPoints != null, "testingPoints == null");
+
             var result = new List<OsmNode>();
             foreach (var point in testingPoints)
             {
@@ -139,12 +153,16 @@ namespace LookWithOSM.NET
 
         private static string BuildingWayDescription(OsmWay buildingWay)
         {
+            Debug.Assert(buildingWay != null, "buildingWay == null");
+
             return String.Format("{0} {1}", buildingWay.Tags[Constants.OsmXml.Values.AddrHousenumber],
                                  buildingWay.Tags[Constants.OsmXml.Values.AddrStreet]);
         }
 
         private static string SingleNodeDescription(OsmNode node)
         {
+            Debug.Assert(node != null, "node == null");
+
             var result = node.Tags[Constants.OsmXml.Values.Amenity];
             if (node.Tags.ContainsKey(Constants.OsmXml.Values.Name))
                 result += " " + node.Tags[Constants.OsmXml.Values.Name];

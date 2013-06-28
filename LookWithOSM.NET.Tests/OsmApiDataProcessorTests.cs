@@ -26,7 +26,7 @@ namespace LookWithOSM.NET.Tests
             var objects = OsmApiDataProcessor.GetObjectsOfImportance(xmlData);
 
             AssertSingleNodes(objects.SingleNodes);
-            AssertBuildingWays(objects.BuildingWays);
+            AssertBuildingsWays(objects.BuildingsWays);
         }
 
         private static void AssertSingleNodes(ICollection<OsmNode> singleNodes)
@@ -38,16 +38,16 @@ namespace LookWithOSM.NET.Tests
             Assert.IsTrue(singleNodes.All(x => x.Tags.ContainsKey(Constants.OsmXml.Values.Amenity)));
         }
 
-        private static void AssertBuildingWays(ICollection<OsmWay> buildingWays)
+        private static void AssertBuildingsWays(ICollection<OsmWay> buildingsWays)
         {
-            Assert.IsNotNull(buildingWays);
-            Assert.IsTrue(buildingWays.Count > 0);
-            Assert.IsTrue(buildingWays.All(x => x.Nodes != null));
-            Assert.IsTrue(buildingWays.All(x => x.Nodes.Count > 2));
-            Assert.IsTrue(buildingWays.All(x => x.Nodes.All(y => Math.Abs(y.Latitude - 0) > Epsilon && Math.Abs(y.Longitude - 0) > Epsilon)));
-            Assert.IsTrue(buildingWays.All(x => x.Tags != null));
-            Assert.IsTrue(buildingWays.All(x => x.Tags.ContainsKey(Constants.OsmXml.Values.AddrHousenumber)));
-            Assert.IsTrue(buildingWays.All(x => x.Tags.ContainsKey(Constants.OsmXml.Values.AddrStreet)));
+            Assert.IsNotNull(buildingsWays);
+            Assert.IsTrue(buildingsWays.Count > 0);
+            Assert.IsTrue(buildingsWays.All(x => x.Nodes != null));
+            Assert.IsTrue(buildingsWays.All(x => x.Nodes.Count > 2));
+            Assert.IsTrue(buildingsWays.All(x => x.Nodes.All(y => Math.Abs(y.Latitude - 0) > Epsilon && Math.Abs(y.Longitude - 0) > Epsilon)));
+            Assert.IsTrue(buildingsWays.All(x => x.Tags != null));
+            Assert.IsTrue(buildingsWays.All(x => x.Tags.ContainsKey(Constants.OsmXml.Values.AddrHousenumber)));
+            Assert.IsTrue(buildingsWays.All(x => x.Tags.ContainsKey(Constants.OsmXml.Values.AddrStreet)));
         }
     }
 }

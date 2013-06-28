@@ -15,13 +15,15 @@ namespace LookWithOSM.NET
         /// </summary>
         public static OsmObjectsOfImportance GetObjectsOfImportance(XDocument xmlData)
         {
+            Debug.Assert(xmlData != null, "xmlData == null");
+
             var extractSingleNodesTask = Task.Factory.StartNew(() => ExtractSingleNodes(xmlData));
-            var osmWays = ExtractBuildingWays(xmlData);
+            var osmWays = ExtractBuildingsWays(xmlData);
 
             return new OsmObjectsOfImportance
             {
                 SingleNodes = extractSingleNodesTask.Result,
-                BuildingWays = osmWays
+                BuildingsWays = osmWays
             };
         }
 
@@ -35,10 +37,12 @@ namespace LookWithOSM.NET
             var nodes = new List<OsmNode>();
             foreach (var nodeElement in xmlData.Root.Descendants(Constants.OsmXml.Tags.Node))
             {
+                // filter by tags
                 var tags = nodeElement.Elements(Constants.OsmXml.Tags.Tag).ToArray();
                 if (tags.All(t => t.Attribute(Constants.OsmXml.Attributes.K).Value != Constants.OsmXml.Values.Amenity))
                     continue;
 
+                // create Node
                 var osmNode = new OsmNode
                 {
                     Id = Convert.ToInt64(nodeElement.Attribute(Constants.OsmXml.Attributes.Id).Value),
@@ -46,11 +50,13 @@ namespace LookWithOSM.NET
                     Longitude = Convert.ToDouble(nodeElement.Attribute(Constants.OsmXml.Attributes.Lon).Value),
                     Tags = new Dictionary<string, string>()
                 };
+                // populate tags
                 foreach (var tagElement in tags)
                 {
                     osmNode.Tags.Add(tagElement.Attribute(Constants.OsmXml.Attributes.K).Value,
                                      tagElement.Attribute(Constants.OsmXml.Attributes.V).Value);
                 }
+
                 nodes.Add(osmNode);
             }
             return nodes;
@@ -59,7 +65,7 @@ namespace LookWithOSM.NET
         /// <summary>
         /// Extracts all Ways of buildings from OSM API Response XML
         /// </summary>
-        private static ICollection<OsmWay> ExtractBuildingWays(XDocument xmlData)
+        private static ICollection<OsmWay> ExtractBuildingsWays(XDocument xmlData)
         {
             Debug.Assert(xmlData.Root != null, "xmlData.Root == null");
 
@@ -73,22 +79,26 @@ namespace LookWithOSM.NET
             var osmWays = new List<OsmWay>();
             foreach (var wayElement in xmlData.Root.Descendants(Constants.OsmXml.Tags.Way))
             {
+                // filter by tags
                 var tags = wayElement.Elements(Constants.OsmXml.Tags.Tag).ToArray();
                 if (tags.All(
                     t => t.Attribute(Constants.OsmXml.Attributes.K).Value != Constants.OsmXml.Values.AddrHousenumber))
                     continue;
 
+                // create Way
                 var osmWay = new OsmWay
                 {
                     Id = Convert.ToInt64(wayElement.Attribute(Constants.OsmXml.Attributes.Id).Value),
                     Nodes = new List<OsmNode>(),
                     Tags = new Dictionary<string, string>()
                 };
+                // populate tags
                 foreach (var tagElement in tags)
                 {
                     osmWay.Tags.Add(tagElement.Attribute(Constants.OsmXml.Attributes.K).Value,
                                     tagElement.Attribute(Constants.OsmXml.Attributes.V).Value);
                 }
+                // populate nodes of a Way
                 foreach (var nodeElement in wayElement.Elements(Constants.OsmXml.Tags.Nd))
                 {
                     osmWay.Nodes.Add(
@@ -97,6 +107,7 @@ namespace LookWithOSM.NET
 
                 if (!osmWay.Tags.ContainsKey(Constants.OsmXml.Values.AddrStreet))
                 {
+                    // find street address of a building from street Relations
                     var streetRelation = osmStreetRelations.First(x => x.MemberIds.Contains(osmWay.Id));
                     osmWay.Tags.Add(Constants.OsmXml.Values.AddrStreet,
                                     streetRelation.Tags[Constants.OsmXml.Values.Name]);
@@ -138,18 +149,21 @@ namespace LookWithOSM.NET
             var osmStreetRelations = new List<OsmRelation>();
             foreach (var relationElement in xmlData.Root.Descendants(Constants.OsmXml.Tags.Relation))
             {
+                // filter by tags
                 var relationTags = relationElement.Elements(Constants.OsmXml.Tags.Tag).ToArray();
                 if (!relationTags.Any(t =>
                                       t.Attribute(Constants.OsmXml.Attributes.K).Value == Constants.OsmXml.Values.Type &&
                                       t.Attribute(Constants.OsmXml.Attributes.V).Value == Constants.OsmXml.Values.Street))
                     continue;
 
+                // create Relation
                 var osmRelation = new OsmRelation
                 {
                     Id = Convert.ToInt64(relationElement.Attribute(Constants.OsmXml.Attributes.Id).Value),
                     MemberIds = new SortedSet<long>(),
                     Tags = new Dictionary<string, string>()
                 };
+                // populate members of a Relation
                 foreach (var memberElement in relationElement.Elements(Constants.OsmXml.Tags.Member))
                 {
                     if (memberElement.Attribute(Constants.OsmXml.Attributes.Role).Value == Constants.OsmXml.Values.House)
@@ -158,11 +172,13 @@ namespace LookWithOSM.NET
                             Convert.ToInt64(memberElement.Attribute(Constants.OsmXml.Attributes.Ref).Value));
                     }
                 }
+                // populate tags
                 foreach (var tagElement in relationTags)
                 {
                     osmRelation.Tags.Add(tagElement.Attribute(Constants.OsmXml.Attributes.K).Value,
                                          tagElement.Attribute(Constants.OsmXml.Attributes.V).Value);
                 }
+
                 osmStreetRelations.Add(osmRelation);
             }
             return osmStreetRelations;

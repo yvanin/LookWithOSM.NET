@@ -15,6 +15,6 @@ namespace LookWithOSM.NET
         /// <summary>
         /// Ways of buildings
         /// </summary>
-        public ICollection<OsmWay> BuildingWays { get; set; }
+        public ICollection<OsmWay> BuildingsWays { get; set; }
     }
 }

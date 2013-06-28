@@ -9,7 +9,7 @@ namespace LookWithOSM.NET.ApiClients
     internal interface IOsmApiClient
     {
         /// <summary>
-        /// Gets all structures of importance in a bounding box
+        /// Gets all structures in a bounding box
         /// </summary>
         XDocument GetDataInBoundingBox(string apiUrl, GeoRectangle boundingBox);
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LookWithOSM.NET.Geography;
 
@@ -36,6 +37,8 @@ namespace LookWithOSM.NET
         /// <param name="width">bounding box's width in meters</param>
         public static GeoRectangle GetBoundingBox(GeoPoint centerPoint, double height, double width)
         {
+            Debug.Assert(centerPoint != null, "centerPoint == null");
+
             return new GeoRectangle
                 {
                     SouthWestVertex =
@@ -53,6 +56,9 @@ namespace LookWithOSM.NET
         /// </summary>
         public static double GetBearing(GeoPoint point1, GeoPoint point2)
         {
+            Debug.Assert(point1 != null, "point1 == null");
+            Debug.Assert(point2 != null, "point2 == null");
+
             var dLon = Geometry.ToRad(point2.Longitude - point1.Longitude);
             var dPhi = Math.Log(Math.Tan(Geometry.ToRad(point2.Latitude)/2 + Math.PI/4)/
                                 Math.Tan(Geometry.ToRad(point1.Latitude)/2 + Math.PI/4));
@@ -67,6 +73,9 @@ namespace LookWithOSM.NET
         /// </summary>
         public static double GetDistance(GeoPoint point1, GeoPoint point2)
         {
+            Debug.Assert(point1 != null, "point1 == null");
+            Debug.Assert(point2 != null, "point2 == null");
+
             var dLat = Geometry.ToRad(point2.Latitude - point1.Latitude);
             var dLon = Geometry.ToRad(point2.Longitude - point1.Longitude);
             var lat1 = Geometry.ToRad(point1.Latitude);
@@ -87,6 +96,8 @@ namespace LookWithOSM.NET
         /// <param name="distance">distance in meters</param>
         public static GeoPoint GetDestination(GeoPoint startPoint, double bearing, double distance)
         {
+            Debug.Assert(startPoint != null, "startPoint == null");
+
             var startLat = Geometry.ToRad(startPoint.Latitude);
             var startLong = Geometry.ToRad(startPoint.Longitude);
 
@@ -108,6 +119,9 @@ namespace LookWithOSM.NET
         /// </summary>
         public static bool IsPointInsidePolygon(GeoPoint point, IEnumerable<GeoPoint> polygonVertices)
         {
+            Debug.Assert(point != null, "point == null");
+            Debug.Assert(polygonVertices != null, "polygonVertices == null");
+
             var polygon = polygonVertices.ToArray();
 
             /* Preliminary Check */
